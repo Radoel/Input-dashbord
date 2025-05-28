@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Enterprise Dashboard</title>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <body>
+        <!-- Login Page -->
+    <div class="auth-container" id="login-page">
+        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-username"><i class="fas fa-user"></i> Username:</label>
+                <input type="text" id="login-username" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password"><i class="fas fa-lock"></i> Password:</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+        </form>
+        <div class="switch-auth" onclick="showRegister()">Don't have an account? Register here</div>
+    </div>
+
+    <!-- Register Page -->
+    <div class="auth-container" id="register-page" style="display: none;">
+        <h2><i class="fas fa-user-plus"></i> Register</h2>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="register-username"><i class="fas fa-user"></i> Username:</label>
+                <input type="text" id="register-username" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password"><i class="fas fa-lock"></i> Password:</label>
+                <input type="password" id="register-password" required>
+            </div>
+            <div class="form-group">
+                <label for="register-confirm-password"><i class="fas fa-lock"></i> Confirm Password:</label>
+                <input type="password" id="register-confirm-password" required>
+            </div>
+            <button type="submit"><i class="fas fa-user-plus"></i> Register</button>
+        </form>
+        <div class="switch-auth" onclick="showLogin()">Already have an account? Login here</div>
+    </div>
+<script src="index.js"></script>
+
+    </body>
+</html>

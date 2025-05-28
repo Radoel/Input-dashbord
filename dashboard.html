@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Production Dashboard</title>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js untuk grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS untuk export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="dashboard.css">
+    <body>
+
+        <div class="dashboard-container" id="dashboard-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2><i class="fas fa-industry"></i>Doel Dashboard</h2>
+                </div>
+                <ul class="sidebar-menu">
+                    <li data-page="dashboard" class="active"><i class="fas fa-home"></i> Dashboard</li>
+                    <li data-page="inventory"><i class="fas fa-shopping-cart"></i> Inventory</li>
+                    <li data-page="finance"><i class="fas fa-money-bill-wave"></i> Finance</li>
+                    <li data-page="employees"><i class="fas fa-users"></i> Employees</li>
+                    <li data-page="settings"><i class="fas fa-cog"></i> Settings</li>
+                    <li data-page="logout"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                </ul>
+            </div>
+    
+            <!-- Main Content -->
+            <div class="main-content">
+                <header>
+                    <h1 id="page-title">Dashboard</h1>
+                    <div class="user-profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="current-user">Admin</span>
+                    </div>
+                </header>
+    
+                <!-- Halaman Dashboard -->
+                <div class="content" id="dashboard">
+                    <div class="card">
+                        <h3><i class="fas fa-boxes"></i> Daily Production</h3>
+                        <p id="production-daily">1,250 units</p>
+                        <small>Updated: <span id="production-time">-</span></small>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-bullseye"></i> Production Target</h3>
+                        <p id="production-target">1,500 units</p>
+                        <small>Achievement: <span id="target-achievement">-</span>%</small>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-tachometer-alt"></i> Efficiency</h3>
+                        <p id="efficiency">83%</p>
+                        <small>Updated: <span id="efficiency-time">-</span></small>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-coins"></i> Revenue Today</h3>
+                        <p id="revenue">Rp 12,500,000</p>
+                        <small>Updated: <span id="revenue-time">-</span></small>
+                    </div>
+                    <div class="card" style="width: 100%;">
+                        <h3><i class="fas fa-chart-line"></i> Production Trend (Last 7 Days)</h3>
+                        <canvas id="productionChart" height="150"></canvas>
+                    </div>
+                    <button onclick="exportDashboardExcel()"><i class="fas fa-file-excel"></i> Export Dashboard to Excel</button>
+                    <div id="notifications"></div>
+                </div>
+    
+                <!-- Halaman Inventory -->
+                <div class="content" id="inventory" style="display: none;">
+                    <h2>Inventory Management</h2>
+                    <form id="inventory-form">
+                        <div class="form-group">
+                            <label for="nama-barang"><i class="fas fa-box"></i> Item Name:</label>
+                            <input type="text" id="nama-barang" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="harga-barang"><i class="fas fa-tag"></i> Price (Rp):</label>
+                            <input type="number" id="harga-barang" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stok-barang"><i class="fas fa-warehouse"></i> Stock:</label>
+                            <input type="number" id="stok-barang" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="kategori-barang"><i class="fas fa-list"></i> Category:</label>
+                            <select id="kategori-barang" required>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Clothing">Fashion</option>
+                                <option value="Food">Food</option>
+                                <option value="Baverage">Baverage</option>
+                                <option value="Study">Study</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <button type="submit"><i class="fas fa-plus"></i> Add Item</button>
+                    </form>
+                    <div class="form-group">
+                        <label for="filter-inventory"><i class="fas fa-search"></i> Search Inventory:</label>
+                        <input type="text" id="filter-inventory" placeholder="Search by name or category...">
+                    </div>
+                    <div id="inventory-list">
+                        <h3>Inventory Records</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table"></tbody>
+                        </table>
+                        <p>Total Value: Rp <span id="total-value">0</span></p>
+                        <button onclick="exportInventoryExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
+                    </div>
+                </div>
+    
+                <!-- Halaman Finance -->
+                <div class="content" id="finance" style="display: none;">
+                    <h2>Management Keuangan</h2>
+                    <form id="finance-form">
+                        <div class="form-group">
+                            <label for="description"><i class="fas fa-file-alt"></i> Description:</label>
+                            <input type="text" id="description" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount"><i class="fas fa-dollar-sign"></i> Amount (Rp):</label>
+                            <input type="number" id="amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="type"><i class="fas fa-exchange-alt"></i> Type:</label>
+                            <select id="type" required>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <button type="submit"><i class="fas fa-save"></i> Add Transaction</button>
+                    </form>
+                    <div id="finance-list">
+                        <h3>Financial Records</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-table"></tbody>
+                        </table>
+                        <p>Total Income: Rp <span id="total-income">0</span></p>
+                        <p>Total Expense: Rp <span id="total-expense">0</span></p>
+                        <p>Balance: Rp <span id="balance">0</span></p>
+                        <button onclick="exportFinancePDF()"><i class="fas fa-file-pdf"></i> Export to PDF</button>
+                        <button onclick="exportFinanceExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
+                        <canvas id="financeChart" height="200"></canvas>
+                    </div>
+                </div>
+    
+                <!-- Halaman Employees -->
+                <div class="content" id="employees" style="display: none;">
+                    <h2>Employee Management</h2>
+                    <form id="employee-form">
+                        <div class="form-group">
+                            <label for="employee-name"><i class="fas fa-user"></i> Name:</label>
+                            <input type="text" id="employee-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee-position"><i class="fas fa-briefcase"></i> Position:</label>
+                            <input type="text" id="employee-position" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee-salary"><i class="fas fa-dollar-sign"></i> Salary (Rp):</label>
+                            <input type="number" id="employee-salary" step="0.01" required>
+                        </div>
+                        <button type="submit"><i class="fas fa-plus"></i> Add Employee</button>
+                    </form>
+                    <div id="employee-list">
+                        <h3>Employee Records</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Salary</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employee-table"></tbody>
+                        </table>
+                        <p>Total Salary: Rp <span id="total-salary">0</span></p>
+                        <button onclick="exportEmployeeExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
+                    </div>
+                </div>
+    
+                <!-- Halaman Settings -->
+                <div class="content" id="settings" style="display: none;">
+                    <h2>Settings</h2>
+                    <form id="settings-form">
+                        <div class="form-group">
+                            <label for="company-name"><i class="fas fa-building"></i> Company Name:</label>
+                            <input type="text" id="company-name" placeholder="Enter company name">
+                        </div>
+                        <div class="form-group">
+                            <label for="theme"><i class="fas fa-paint-brush"></i> Theme:</label>
+                            <select id="theme">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="backup"><i class="fas fa-download"></i> Backup Data:</label>
+                            <button type="button" onclick="backupData()"><i class="fas fa-save"></i> Backup Now</button>
+                        </div>
+                        <button type="submit"><i class="fas fa-save"></i> Save Settings</button>
+                    </form>
+                </div>
+    
+                <!-- Halaman Logout -->
+                <div class="content" id="logout" style="display: none;">
+                    <h2>Logging out...</h2>
+                    <p>Redirecting to login page...</p>
+                </div>
+            </div>
+        </div>
+    
+    <script src="dashboard.js"></script>
+<!-- jsPDF untuk export PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    </body>
+    </html>
